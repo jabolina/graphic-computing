@@ -1,6 +1,8 @@
 import pygame
 
+from typing import List
 from user_interface.utils import palette_colors, available_options
+from user_interface.event_handler import GUIEventHandler
 
 DEFAULT_DIMENSION = (1024, 768)
 LINE_SIZE = 5
@@ -63,8 +65,11 @@ class GUIContext(object):
         return self._background
 
 
-class UserInterface:
+class UserInterface(GUIEventHandler):
     def __init__(self):
+        """
+            Entry point, holds the GUI context and the user options context
+        """
         pygame.init()
 
         self.options_context = OptionsContext()
@@ -73,6 +78,9 @@ class UserInterface:
         pygame.display.set_caption("Paint")
 
     def draw_options(self):
+        """
+            Keep drawing the options available for the user to choose, from left top to left bottom
+        """
         options = available_options()
 
         for idx, option in enumerate(options):
@@ -81,6 +89,9 @@ class UserInterface:
                 self.gui_context.screen.blit(text, (5, 25 * idx))
 
     def draw_color_palette(self):
+        """
+            Keep drawing the color palette in the top of screen, from left to right
+        """
         colors = palette_colors()
 
         for idx, available_color in enumerate(colors):
@@ -89,14 +100,20 @@ class UserInterface:
                                  available_color,
                                  [20 * idx, 0, 20, 20])
 
-    def handle_pressed_element(self, element: pygame.Rect):
+    def handle_pressed_element(self, elements: List[pygame.Rect]):
         """
             Will handle the pressed color or option. If color, change the color in use,
             if one of the tools is selected, the user will have the option to draw.
-        :param element: Pressed element
+        :param elements: List of pressed element
         """
+        [self.on_rect_click(element) for element in elements]
 
     def run(self):
+        """
+            Keeps running until the quit button is pressed and the application ends.
+            Will draw the color palette, and options, keeps looking for pressed elements in the screen.
+        :return:
+        """
         while self.options_context.keep_running:
             self.draw_options()
             self.draw_color_palette()
@@ -110,11 +127,10 @@ class UserInterface:
                 mouse_position = pygame.mouse.get_pos()
                 is_pressed, _, __ = pygame.mouse.get_pressed()
 
-                pressed_elements = [element for element in
-                                    self.options_context.elements if
-                                    element.collidepoint(mouse_position) and is_pressed]
-
-                print(pressed_elements)
+                self.handle_pressed_element([element for element in
+                                            self.options_context.elements if
+                                            element.collidepoint(mouse_position) and
+                                            is_pressed])
 
             del self.options_context.elements
             pygame.display.flip()
