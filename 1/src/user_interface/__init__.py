@@ -8,7 +8,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 
-class Context(object):
+class OptionsContext(object):
     def __init__(self):
         self._keep_running = True
         self._line_color = BLACK
@@ -44,32 +44,48 @@ class Context(object):
         self.elements.clear()
 
 
+class GUIContext(object):
+    def __init__(self):
+        self._screen = pygame.display.set_mode(DEFAULT_DIMENSION)
+        self._text_generator = pygame.font.SysFont('Arial', 18)
+        self._background = pygame.Surface(DEFAULT_DIMENSION)
+
+    @property
+    def screen(self):
+        return self._screen
+
+    @property
+    def text_generator(self):
+        return self._text_generator
+
+    @property
+    def background(self):
+        return self._background
+
+
 class UserInterface:
     def __init__(self):
         pygame.init()
 
-        self.context = Context()
-        self.screen = pygame.display.set_mode(DEFAULT_DIMENSION)
-        self.text_generator = pygame.font.SysFont('Arial', 18)
-        self.background = pygame.Surface(DEFAULT_DIMENSION)
-
-        self.screen.fill(WHITE)
+        self.options_context = OptionsContext()
+        self.gui_context = GUIContext()
+        self.gui_context.screen.fill(WHITE)
         pygame.display.set_caption("Paint")
 
     def draw_options(self):
         options = available_options()
 
         for idx, option in enumerate(options):
-            text = self.text_generator.render(option, True, BLACK)
-            self.context.elements = \
-                self.screen.blit(text, (5, 25 * idx))
+            text = self.gui_context.text_generator.render(option, True, BLACK)
+            self.options_context.elements = \
+                self.gui_context.screen.blit(text, (5, 25 * idx))
 
     def draw_color_palette(self):
         colors = palette_colors()
 
         for idx, available_color in enumerate(colors):
-            self.context.elements = \
-                pygame.draw.rect(self.screen,
+            self.options_context.elements = \
+                pygame.draw.rect(self.gui_context.screen,
                                  available_color,
                                  [20 * idx, 0, 20, 20])
 
@@ -81,7 +97,7 @@ class UserInterface:
         """
 
     def run(self):
-        while self.context.keep_running:
+        while self.options_context.keep_running:
             self.draw_options()
             self.draw_color_palette()
 
@@ -89,16 +105,16 @@ class UserInterface:
 
             for event in events:
                 if event.type == pygame.QUIT:
-                    self.context.keep_running = False
+                    self.options_context.keep_running = False
 
                 mouse_position = pygame.mouse.get_pos()
                 is_pressed, _, __ = pygame.mouse.get_pressed()
 
                 pressed_elements = [element for element in
-                                    self.context.elements if
+                                    self.options_context.elements if
                                     element.collidepoint(mouse_position) and is_pressed]
 
                 print(pressed_elements)
 
-            del self.context.elements
+            del self.options_context.elements
             pygame.display.flip()
