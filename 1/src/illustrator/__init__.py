@@ -32,3 +32,34 @@ class BaseIllustrator(object):
                 d += 2 * dy
 
         pygame.display.flip()
+
+    def _symmetry_points(self, x, y, offset):
+        gfxdraw.pixel(self.gui_context.screen, x + offset, y + offset, self.options_context.line_color)
+        gfxdraw.pixel(self.gui_context.screen, -x + offset, y + offset, self.options_context.line_color)
+        gfxdraw.pixel(self.gui_context.screen, x + offset, -y + offset, self.options_context.line_color)
+        gfxdraw.pixel(self.gui_context.screen, -x + offset, -y + offset, self.options_context.line_color)
+        gfxdraw.pixel(self.gui_context.screen, y + offset, x + offset, self.options_context.line_color)
+        gfxdraw.pixel(self.gui_context.screen, -y + offset, x + offset, self.options_context.line_color)
+        gfxdraw.pixel(self.gui_context.screen, y + offset, -x + offset, self.options_context.line_color)
+        gfxdraw.pixel(self.gui_context.screen, -y + offset, -x + offset, self.options_context.line_color)
+
+        pygame.display.flip()
+
+    def _plot_circle(self, x, y, radius, offset):
+        d = 5 / 4.0 - radius
+        self._symmetry_points(x, y, offset)
+
+        while x < y:
+            if d < 0:
+                x += 1
+                d += 2*x + 1
+            else:
+                x += 1
+                y -= 1
+                d += 2 * (x - y) + 1
+
+            self._symmetry_points(x, y, radius + offset)
+
+    def middle_point(self, radius, offset):
+        x, y = 0, radius
+        self._plot_circle(x, y, radius, offset)
