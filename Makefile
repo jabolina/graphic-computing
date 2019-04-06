@@ -10,5 +10,5 @@ install:
 	pip3 install -r requirements.txt
 
 lint:
-	autopep8 --max-line-length 120 -r -j 8 -i .
+	flake8 --exclude .git,__pycache__ assignments/
 

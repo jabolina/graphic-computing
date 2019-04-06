@@ -79,7 +79,8 @@ class UserInterface(GUIEventHandler):
 
     def draw_options(self):
         """
-            Keep drawing the options available for the user to choose, from left top to left bottom
+            Keep drawing the options available for the user to choose,
+            from left top to left bottom
         """
         options = available_options()
 
@@ -90,7 +91,8 @@ class UserInterface(GUIEventHandler):
 
     def draw_color_palette(self):
         """
-            Keep drawing the color palette in the top of screen, from left to right
+            Keep drawing the color palette in the top of screen, from
+            left to right
         """
         colors = palette_colors()
 
@@ -102,16 +104,18 @@ class UserInterface(GUIEventHandler):
 
     def handle_pressed_element(self, elements: List[pygame.Rect]):
         """
-            Will handle the pressed color or option. If color, change the color in use,
-            if one of the tools is selected, the user will have the option to draw.
+            Will handle the pressed color or option. If color, change the
+            color in use, if one of the tools is selected, the user will have
+            the option to draw.
         :param elements: List of pressed element
         """
         [self.on_rect_click(element) for element in elements]
 
     def run(self):
         """
-            Keeps running until the quit button is pressed and the application ends.
-            Will draw the color palette, and options, keeps looking for pressed elements in the screen.
+            Keeps running until the quit button is pressed and the
+            application ends. Will draw the color palette, and options, keeps
+            looking for pressed elements in the screen.
         :return:
         """
         while self.options_context.keep_running:
@@ -128,9 +132,11 @@ class UserInterface(GUIEventHandler):
                 is_pressed, _, __ = pygame.mouse.get_pressed()
 
                 self.handle_pressed_element([element for element in
-                                            self.options_context.elements if
-                                            element.collidepoint(mouse_position) and
-                                            is_pressed])
+                                             self.options_context.elements if
+                                             element.collidepoint(
+                                                 mouse_position
+                                             ) and
+                                             is_pressed])
 
             del self.options_context.elements
             pygame.display.flip()
