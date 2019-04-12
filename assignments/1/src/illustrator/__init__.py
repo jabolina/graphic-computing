@@ -1,16 +1,19 @@
 import pygame
+import abc
 from pygame import gfxdraw
 
 from user_interface import GUIContext, OptionsContext
 
 
-class BaseIllustrator(object):
+class BaseIllustrator:
+    __metaclass__ = abc.ABCMeta
+
     def __init__(self, gui_context: GUIContext,
                  options_context: OptionsContext):
         self.gui_context = gui_context
         self.options_context = options_context
 
-    def bresenham(self, x_points, y_points):
+    def _bresenham(self, x_points, y_points):
         x1, x2 = x_points
         y1, y2 = y_points
 
@@ -72,6 +75,24 @@ class BaseIllustrator(object):
 
             self._symmetry_points(x, y, radius + offset)
 
-    def middle_point(self, radius, offset):
+    def _middle_point(self, radius, offset):
         x, y = 0, radius
         self._plot_circle(x, y, radius, offset)
+
+    @abc.abstractmethod
+    def draw_line(self, *args, **kwargs):
+        """
+            Method must be implemented, this will draw single lines
+        :param args: Anything
+        :param kwargs: Anythin
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def draw_circle(self, *args, **kwargs):
+        """
+            Method must be implemented, this will draw circles
+        :param args: Anything
+        :param kwargs: Anything
+        """
+        raise NotImplementedError
