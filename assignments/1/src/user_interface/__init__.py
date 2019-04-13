@@ -1,68 +1,10 @@
 import pygame
 
 from typing import List
+
+from user_interface.constants import BLACK
 from user_interface.utils import palette_colors, available_options
 from user_interface.event_handler import GUIEventHandler
-
-DEFAULT_DIMENSION = (1024, 768)
-LINE_SIZE = 5
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-
-
-class OptionsContext(object):
-    def __init__(self):
-        self._keep_running = True
-        self._line_color = BLACK
-        self._elements = []
-        self.line_size = LINE_SIZE
-
-    @property
-    def line_color(self):
-        return self._line_color
-
-    @line_color.setter
-    def line_color(self, color):
-        self._line_color = color
-
-    @property
-    def keep_running(self):
-        return self._keep_running
-
-    @keep_running.setter
-    def keep_running(self, value):
-        self._keep_running = value
-
-    @property
-    def elements(self):
-        return self._elements
-
-    @elements.setter
-    def elements(self, element):
-        self.elements.append(element)
-
-    @elements.deleter
-    def elements(self):
-        self.elements.clear()
-
-
-class GUIContext(object):
-    def __init__(self):
-        self._screen = pygame.display.set_mode(DEFAULT_DIMENSION)
-        self._text_generator = pygame.font.SysFont('Arial', 18)
-        self._background = pygame.Surface(DEFAULT_DIMENSION)
-
-    @property
-    def screen(self):
-        return self._screen
-
-    @property
-    def text_generator(self):
-        return self._text_generator
-
-    @property
-    def background(self):
-        return self._background
 
 
 class UserInterface(GUIEventHandler):
@@ -70,11 +12,7 @@ class UserInterface(GUIEventHandler):
         """
             Entry point, holds the GUI context and the user options context
         """
-        pygame.init()
-
-        self.options_context = OptionsContext()
-        self.gui_context = GUIContext()
-        self.gui_context.screen.fill(WHITE)
+        super().__init__()
         pygame.display.set_caption("Paint")
 
     def draw_options(self):
@@ -85,9 +23,15 @@ class UserInterface(GUIEventHandler):
         options = available_options()
 
         for idx, option in enumerate(options):
+            position = (5, 25 * (idx + 1))
+            self.options_context.element_in_position = {
+                'is_color': False,
+                'value': option,
+                'position': position
+            }
             text = self.gui_context.text_generator.render(option, True, BLACK)
             self.options_context.elements = \
-                self.gui_context.screen.blit(text, (5, 25 * idx))
+                self.gui_context.screen.blit(text, position)
 
     def draw_color_palette(self):
         """
@@ -97,19 +41,29 @@ class UserInterface(GUIEventHandler):
         colors = palette_colors()
 
         for idx, available_color in enumerate(colors):
+            self.options_context.element_in_position = {
+                'is_color': True,
+                'value': available_color,
+                'position': (20 * idx, 0)
+            }
             self.options_context.elements = \
                 pygame.draw.rect(self.gui_context.screen,
                                  available_color,
                                  [20 * idx, 0, 20, 20])
 
-    def handle_pressed_element(self, elements: List[pygame.Rect]):
+    def handle_pressed_element(self, elements: List[pygame.Rect], mouse_position: tuple):
         """
             Will handle the pressed color or option. If color, change the
             color in use, if one of the tools is selected, the user will have
             the option to draw.
         :param elements: List of pressed element
+        :param mouse_position: The position of the mouse when the element was pressed
         """
-        [self.on_rect_click(element) for element in elements]
+        for information in self.options_context.element_in_position:
+            [self.on_rect_click(element, information)
+             if element.collidepoint(*information['position'])
+             else ''
+             for element in elements]
 
     def run(self):
         """
@@ -136,7 +90,8 @@ class UserInterface(GUIEventHandler):
                                              element.collidepoint(
                                                  mouse_position
                                              ) and
-                                             is_pressed])
+                                             is_pressed], mouse_position)
 
             del self.options_context.elements
+            del self.options_context.element_in_position
             pygame.display.flip()
