@@ -1,74 +1,37 @@
 import pygame
 
-from user_interface.constants import BLACK, LINE_SIZE, DEFAULT_DIMENSION, WHITE
+from illustrator import BaseIllustrator
+from illustrator.circle import CircleIllustrator
+from illustrator.curve import CurveIllustrator
+from illustrator.line import LineIllustrator
+from illustrator.polyline import PolylineIllustrator
+from illustrator.rectangle import RectangleIllustrator
+from illustrator.square import SquareIllustrator
+from user_interface.context import GUIContext, OptionsContext
+from user_interface.utils import available_options
+from user_interface.constants import WHITE
 
 
-class OptionsContext(object):
-    def __init__(self):
-        self._keep_running = True
-        self._line_color = BLACK
-        self._elements = []
-        self._element_in_position = []
-        self.line_size = LINE_SIZE
+class IllustratorContext:
+    """
+        This class will hold all the references to the illustrator classes
+    """
 
-    @property
-    def line_color(self):
-        return self._line_color
-
-    @line_color.setter
-    def line_color(self, color):
-        self._line_color = color
-
-    @property
-    def keep_running(self):
-        return self._keep_running
-
-    @keep_running.setter
-    def keep_running(self, value):
-        self._keep_running = value
-
-    @property
-    def elements(self):
-        return self._elements
-
-    @elements.setter
-    def elements(self, element):
-        self.elements.append(element)
-
-    @elements.deleter
-    def elements(self):
-        self.elements.clear()
-
-    @property
-    def element_in_position(self):
-        return self._element_in_position
-
-    @element_in_position.setter
-    def element_in_position(self, element):
-        self._element_in_position.append(element)
-
-    @element_in_position.deleter
-    def element_in_position(self):
-        self._element_in_position.clear()
-
-
-class GUIContext(object):
-    def __init__(self):
-        self._screen = pygame.display.set_mode(DEFAULT_DIMENSION)
-        self._text_generator = pygame.font.SysFont('Arial', 18)
-        self._background = pygame.Surface(DEFAULT_DIMENSION)
-
-    @property
-    def screen(self):
-        return self._screen
-
-    @property
-    def text_generator(self):
-        return self._text_generator
-
-    @property
-    def background(self):
-        return self._background
+    def __init__(self, gui_context: GUIContext, gui_options: OptionsContext):
+        """
+            If you look closely, the illustrator classes follows the same sequence
+            defined in utils.available_options
+        :param gui_context:
+        :param gui_options:
+        """
+        self.illustrators = [
+            LineIllustrator(gui_context, gui_options),
+            RectangleIllustrator(gui_context, gui_options),
+            SquareIllustrator(gui_context, gui_options),
+            PolylineIllustrator(gui_context, gui_options),
+            CurveIllustrator(gui_context, gui_options),
+            CircleIllustrator(gui_context, gui_options)
+        ]
 
 
 class GUIEventHandler:
@@ -77,14 +40,26 @@ class GUIEventHandler:
         self.options_context = OptionsContext()
         self.gui_context = GUIContext()
         self.gui_context.screen.fill(WHITE)
+        self.illustrator = IllustratorContext(self.gui_context, self.options_context)
 
-    def on_rect_click(self, element: pygame.Rect, element_info: dict):
+    def _color_change(self, value: tuple):
+        self.options_context.line_color = value
+
+    def _option_to_illustrator(self, option: str) -> BaseIllustrator:
+        return self.illustrator.illustrators[available_options().index(option)]
+
+    def on_rect_click(self, element: pygame.Rect, element_info: dict) -> bool:
         """
             Verify if the pressed item is a color element or an
             option element and handle it accordingly
         :param element: The pressed rect element
         :param element_info: Information about the pressed element
+        :return success or fail
         """
         print('The pressed element: ', element)
         print('Information about: ', element_info)
+        if element_info['is_color']:
+            self._color_change(element_info['value'])
+            return True
 
+        self._option_to_illustrator(element_info['value']).draw_line()

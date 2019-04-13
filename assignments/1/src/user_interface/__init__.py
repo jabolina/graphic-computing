@@ -2,9 +2,9 @@ import pygame
 
 from typing import List
 
-from user_interface.constants import BLACK
-from user_interface.utils import palette_colors, available_options
+from user_interface.constants import BLACK, LINE_SIZE, DEFAULT_DIMENSION
 from user_interface.event_handler import GUIEventHandler
+from user_interface.utils import palette_colors, available_options
 
 
 class UserInterface(GUIEventHandler):
@@ -51,13 +51,12 @@ class UserInterface(GUIEventHandler):
                                  available_color,
                                  [20 * idx, 0, 20, 20])
 
-    def handle_pressed_element(self, elements: List[pygame.Rect], mouse_position: tuple):
+    def handle_pressed_element(self, elements: List[pygame.Rect]):
         """
             Will handle the pressed color or option. If color, change the
             color in use, if one of the tools is selected, the user will have
             the option to draw.
         :param elements: List of pressed element
-        :param mouse_position: The position of the mouse when the element was pressed
         """
         for information in self.options_context.element_in_position:
             [self.on_rect_click(element, information)
@@ -90,7 +89,7 @@ class UserInterface(GUIEventHandler):
                                              element.collidepoint(
                                                  mouse_position
                                              ) and
-                                             is_pressed], mouse_position)
+                                             is_pressed])
 
             del self.options_context.elements
             del self.options_context.element_in_position

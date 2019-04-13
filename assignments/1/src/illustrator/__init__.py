@@ -2,7 +2,7 @@ import pygame
 import abc
 from pygame import gfxdraw
 
-from user_interface import GUIContext, OptionsContext
+from user_interface.context import GUIContext, OptionsContext
 
 
 class BaseIllustrator:
