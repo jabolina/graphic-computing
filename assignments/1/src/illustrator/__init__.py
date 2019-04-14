@@ -4,6 +4,8 @@ from pygame import gfxdraw
 
 from user_interface.context import GUIContext, OptionsContext
 
+PIXEL_SIZE = 1
+
 
 class BaseIllustrator:
     __metaclass__ = abc.ABCMeta
@@ -13,30 +15,48 @@ class BaseIllustrator:
         self.gui_context = gui_context
         self.options_context = options_context
 
-    def _bresenham(self, x_points, y_points):
-        x1, x2 = x_points
-        y1, y2 = y_points
+    def _set_pixel(self, x, y):
+        self.gui_context.screen.set_at((x, y), self.options_context.line_color)
 
-        dx = x2 - x1
-        dy = y2 - y1
+    def _bresenham(self, x0, y0, x1, y1):
+        dx = x1 - x0
+        dy = y1 - y0
 
-        d = 2 * dy - dx
+        if dy < 0:
+            dy = -dy
+            stepy = -1
+        else:
+            stepy = 1
 
-        gfxdraw.pixel(self.gui_context.screen, x1,
-                      y1, self.options_context.line_color)
+        if dx < 0:
+            dx = -dx
+            stepx = -1
+        else:
+            stepx = 1
 
-        y = y1
+        dx <<= 2
+        dy <<= 2
 
-        for x in range(x1 + 1, x2 + 1):
-            if d > 0:
-                y += 1
-                gfxdraw.pixel(self.gui_context.screen, x,
-                              y, self.options_context.line_color)
-                d += 2 * dy - 2 * dx
-            else:
-                gfxdraw.pixel(self.gui_context.screen, x,
-                              y, self.options_context.line_color)
-                d += 2 * dy
+        self._set_pixel(x0, y0)
+
+        if dx > dy:
+            fraction = dy - (dx >> 1)
+            while x0 != x1:
+                if fraction >= 0:
+                    y0 += stepy
+                    fraction -= dx
+                x0 += stepx
+                fraction += dy
+                self._set_pixel(x0, y0)
+        else:
+            fraction = dx - (dy >> 1)
+            while y0 != y1:
+                if fraction >= 0:
+                    x0 += stepx
+                    fraction -= dy
+                y0 += stepy
+                fraction += dx
+                self._set_pixel(x0, y0)
 
         pygame.display.flip()
 
@@ -67,7 +87,7 @@ class BaseIllustrator:
         while x < y:
             if d < 0:
                 x += 1
-                d += 2*x + 1
+                d += 2 * x + 1
             else:
                 x += 1
                 y -= 1
