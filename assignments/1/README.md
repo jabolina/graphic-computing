@@ -11,9 +11,9 @@ The draw routine must implement Bresenham algorithm and middle point algorithm f
 - [ ] GUI
     - [X] Line
     - [X] Circle
-    - [ ] Square
+    - [X] Square
     - [ ] Polyline
-    - [ ] Rectangle
+    - [X] Rectangle
     - [X] Curve(Bezier)
 - [X] Bresenham algorithm
 - [X] Middle point algorithm
