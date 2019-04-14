@@ -1,6 +1,7 @@
-import pygame
 import abc
-from pygame import gfxdraw
+from typing import Tuple
+
+import pygame
 
 from user_interface.context import GUIContext, OptionsContext
 
@@ -60,51 +61,46 @@ class BaseIllustrator:
 
         pygame.display.flip()
 
-    def _symmetry_points(self, x, y, offset):
-        gfxdraw.pixel(self.gui_context.screen, x + offset,
-                      y + offset, self.options_context.line_color)
-        gfxdraw.pixel(self.gui_context.screen, -x + offset,
-                      y + offset, self.options_context.line_color)
-        gfxdraw.pixel(self.gui_context.screen, x + offset,
-                      -y + offset, self.options_context.line_color)
-        gfxdraw.pixel(self.gui_context.screen, -x + offset,
-                      -y + offset, self.options_context.line_color)
-        gfxdraw.pixel(self.gui_context.screen, y + offset,
-                      x + offset, self.options_context.line_color)
-        gfxdraw.pixel(self.gui_context.screen, -y + offset,
-                      x + offset, self.options_context.line_color)
-        gfxdraw.pixel(self.gui_context.screen, y + offset,
-                      -x + offset, self.options_context.line_color)
-        gfxdraw.pixel(self.gui_context.screen, -y + offset,
-                      -x + offset, self.options_context.line_color)
+    def _middle_point(self, radius: int, center: Tuple[int, int]) -> None:
+        x0, y0 = center
+        f = 1 - radius
+        ddf_x = 1
+        ddf_y = -2 * radius
 
-        pygame.display.flip()
+        x = 0
+        y = radius
 
-    def _plot_circle(self, x, y, radius, offset):
-        d = 5 / 4.0 - radius
-        self._symmetry_points(x, y, offset)
+        self._set_pixel(x0, y0 + radius)
+        self._set_pixel(x0, y0 - radius)
+        self._set_pixel(x0 + radius, y0)
+        self._set_pixel(x0 - radius, y0)
 
         while x < y:
-            if d < 0:
-                x += 1
-                d += 2 * x + 1
-            else:
-                x += 1
+            if f >= 0:
                 y -= 1
-                d += 2 * (x - y) + 1
+                ddf_y += 2
+                f += ddf_y
+            x += 1
+            ddf_x += 2
+            f += ddf_x
 
-            self._symmetry_points(x, y, radius + offset)
+            self._set_pixel(x0 + x, y0 + y)
+            self._set_pixel(x0 - x, y0 + y)
+            self._set_pixel(x0 + x, y0 - y)
+            self._set_pixel(x0 - x, y0 - y)
+            self._set_pixel(x0 + y, y0 + x)
+            self._set_pixel(x0 - y, y0 + x)
+            self._set_pixel(x0 + y, y0 - x)
+            self._set_pixel(x0 - y, y0 - x)
 
-    def _middle_point(self, radius, offset):
-        x, y = 0, radius
-        self._plot_circle(x, y, radius, offset)
+        pygame.display.flip()
 
     @abc.abstractmethod
     def draw_line(self, *args, **kwargs):
         """
             Method must be implemented, this will draw single lines
         :param args: Anything
-        :param kwargs: Anythin
+        :param kwargs: Anything
         """
         raise NotImplementedError
 
