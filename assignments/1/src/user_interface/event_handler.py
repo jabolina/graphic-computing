@@ -23,8 +23,8 @@ class IllustratorContext:
 
     def __init__(self, gui_context: GUIContext, gui_options: OptionsContext):
         """
-            If you look closely, the illustrator classes follows the same sequence
-            defined in utils.available_options
+            If you look closely, the illustrator classes follows the
+            same sequence defined in utils.available_options
         :param gui_context:
         :param gui_options:
         """
@@ -40,10 +40,12 @@ class IllustratorContext:
 
 class Threader(Thread):
     """
-        If all the drawing methods were marked as `async`, then they could be executed
-        in a separated thread, maybe this is just complicating this too much, but who knows?
+        If all the drawing methods were marked as `async`, then they could
+        be executed in a separated thread, maybe this is just complicating
+        this too much, but who knows?
     """
-    def __init__(self, coroutine: Callable[[tuple], Awaitable[None]], *args, **kwargs):
+    def __init__(self, coroutine: Callable[[tuple], Awaitable[None]],
+                 *args, **kwargs):
         super().__init__()
         self._callback = coroutine
         self.args = args
@@ -61,7 +63,10 @@ class GUIEventHandler:
         self.options_context = OptionsContext()
         self.gui_context = GUIContext()
         self.gui_context.screen.fill(WHITE)
-        self.illustrator = IllustratorContext(self.gui_context, self.options_context)
+        self.illustrator = IllustratorContext(
+            self.gui_context,
+            self.options_context
+        )
 
     def _color_change(self, value: tuple) -> None:
         self.options_context.line_color = value
@@ -86,10 +91,16 @@ class GUIEventHandler:
         illustrator = self._option_to_illustrator(element_info['value'])
 
         if isinstance(illustrator, CircleIllustrator):
-            # complete_in_future = Threader(illustrator.draw_circle, option_position=element_info['position'])
+            # complete_in_future = Threader(
+            #    illustrator.draw_circle,
+            #    option_position=element_info['position']
+            # )
             illustrator.draw_circle(option_position=element_info['position'])
         else:
-            # complete_in_future = Threader(illustrator.draw_line, option_position=element_info['position'])
+            # complete_in_future = Threader(
+            #    illustrator.draw_line,
+            #    option_position=element_info['position']
+            # )
             illustrator.draw_line(option_position=element_info['position'])
 
         # If pygame had support for multi threading, this could be done :/

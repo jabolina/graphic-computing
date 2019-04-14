@@ -2,7 +2,7 @@ import pygame
 
 from typing import List
 
-from user_interface.constants import BLACK, LINE_SIZE, DEFAULT_DIMENSION
+from user_interface.constants import BLACK
 from user_interface.event_handler import GUIEventHandler
 from user_interface.utils import palette_colors, available_options
 

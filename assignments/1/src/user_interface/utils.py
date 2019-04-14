@@ -38,8 +38,9 @@ def palette_colors():
 
 def available_options():
     """
-        The sequence defined here is the same as the illustrator sequence defined
-        in the IllustratorContext, this is needed to know which option was pressed
+        The sequence defined here is the same as the illustrator sequence
+        defined in the IllustratorContext, this is needed to know which
+        option was pressed
 
     :return: list of available options to the user
     """

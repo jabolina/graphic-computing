@@ -6,8 +6,8 @@ from . import BaseIllustrator
 class LineIllustrator(BaseIllustrator):
     def draw_line(self, *args, **kwargs) -> None:
         """
-            Will keep awaiting for two mouse clicks, the position where it will start
-            and another click where the line ends
+            Will keep awaiting for two mouse clicks, the position where
+            it will start and another click where the line ends
         :param args:
         :param kwargs:
         """
