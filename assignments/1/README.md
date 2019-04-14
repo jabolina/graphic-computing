@@ -9,5 +9,11 @@ The draw routine must implement Bresenham algorithm and middle point algorithm f
 ### Done ###
 
 - [ ] GUI
-- [ ] Bresenham algorithm
-- [ ] Middle point algorithm
+    - [X] Line
+    - [X] Circle
+    - [ ] Square
+    - [ ] Polyline
+    - [ ] Rectangle
+    - [ ] Curve
+- [X] Bresenham algorithm
+- [X] Middle point algorithm
