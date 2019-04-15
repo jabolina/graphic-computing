@@ -23,6 +23,10 @@ class CoroutineThreader(Thread):
 
 
 class RoutineThreader(Thread):
+    """
+        This will launch a method in another thread, this is for methods
+        that are no `async` marked
+    """
     def __init__(self, method: Callable, *args, **kwargs):
         super().__init__()
         self.callback = method
