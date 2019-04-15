@@ -1,6 +1,6 @@
-import pygame
-
 from typing import List
+
+import pygame
 
 from user_interface.constants import BLACK
 from user_interface.event_handler import GUIEventHandler

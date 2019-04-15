@@ -1,7 +1,3 @@
-from threading import Thread
-from typing import Callable, Awaitable
-
-import asyncio
 import pygame
 
 from illustrator import BaseIllustrator
@@ -11,9 +7,9 @@ from illustrator.line import LineIllustrator
 from illustrator.polyline import PolylineIllustrator
 from illustrator.rectangle import RectangleIllustrator
 from illustrator.square import SquareIllustrator
+from user_interface.constants import WHITE
 from user_interface.context import GUIContext, OptionsContext
 from user_interface.utils import available_options
-from user_interface.constants import WHITE
 
 
 class IllustratorContext:
@@ -36,25 +32,6 @@ class IllustratorContext:
             CurveIllustrator(gui_context, gui_options),
             CircleIllustrator(gui_context, gui_options)
         ]
-
-
-class Threader(Thread):
-    """
-        If all the drawing methods were marked as `async`, then they could
-        be executed in a separated thread, maybe this is just complicating
-        this too much, but who knows?
-    """
-    def __init__(self, coroutine: Callable[[tuple], Awaitable[None]],
-                 *args, **kwargs):
-        super().__init__()
-        self._callback = coroutine
-        self.args = args
-        self.kwargs = kwargs
-
-    def run(self):
-        loop = asyncio.new_event_loop()
-        loop.run_until_complete(self._callback(*self.args, **self.kwargs))
-        loop.close()
 
 
 class GUIEventHandler:
@@ -91,13 +68,13 @@ class GUIEventHandler:
         illustrator = self._option_to_illustrator(element_info['value'])
 
         if isinstance(illustrator, CircleIllustrator):
-            # complete_in_future = Threader(
+            # complete_in_future = CoroutineThreader(
             #    illustrator.draw_circle,
             #    option_position=element_info['position']
             # )
             illustrator.draw_circle(option_position=element_info['position'])
         else:
-            # complete_in_future = Threader(
+            # complete_in_future = CoroutineThreader(
             #    illustrator.draw_line,
             #    option_position=element_info['position']
             # )
