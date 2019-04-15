@@ -29,3 +29,7 @@ esse contexto, porque a cada tick do clock desenhariamos as coisas padrões (op�
 as coisas salvas no contexto.
 
 A parte ruim, é que quanto mais coisas desenhadas, mais pesado o contexto vai ficar e assim mais lento ainda.
+
+Uma das maneiras de salvar assim, seria no contexto conter um array de objetos, que possue a Surface referente ao
+desenho, com alpha 100, para ser transparente, juntamente com a posição na tela (x, y), assim seria só força
+as surfaces na tela, em vez de desenhar tudo novamente.
