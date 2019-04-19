@@ -1,8 +1,9 @@
-from typing import List
+from typing import List, Tuple
 
 import pygame
 
-from user_interface.constants import BLACK
+from user_interface.constants import BLACK, DEFAULT_WIDTH, DEFAULT_HEIGHT
+from user_interface.context import DrawContext
 from user_interface.event_handler import GUIEventHandler
 from user_interface.utils import palette_colors, available_options
 
@@ -15,7 +16,21 @@ class UserInterface(GUIEventHandler):
         super().__init__()
         pygame.display.set_caption("Paint")
 
-    def draw_options(self):
+    @staticmethod
+    def draw_to_surface(surface: pygame.Surface, elements: List[DrawContext]):
+        for element in elements:
+            surface.blit(element.element, element.position)
+
+    @staticmethod
+    def surface_was_pressed(draw: DrawContext, mouse_position: Tuple[int, int]) -> bool:
+        element = draw.element
+        (x, y) = draw.position
+        (height, width) = element.get_size()
+        (m, n) = mouse_position
+
+        return (x <= m <= (x + height)) and (y <= n <= (y + width))
+
+    def create_options(self):
         """
             Keep drawing the options available for the user to choose,
             from left top to left bottom
@@ -23,17 +38,14 @@ class UserInterface(GUIEventHandler):
         options = available_options()
 
         for idx, option in enumerate(options):
-            position = (5, 25 * (idx + 1))
-            self.options_context.element_in_position = {
-                'is_color': False,
-                'value': option,
-                'position': position
-            }
+            option_surface = pygame.Surface((60, 25))
+            option_surface.fill((155, 155, 155))
+            position = (5, 28 * (idx + 1))
             text = self.gui_context.text_generator.render(option, True, BLACK)
-            self.options_context.elements = \
-                self.gui_context.screen.blit(text, position)
+            option_surface.blit(text, (0, 5))
+            self.gui_context.draw_surfaces = DrawContext(option_surface, position, is_color=False, value=option)
 
-    def draw_color_palette(self):
+    def create_color_palette(self):
         """
             Keep drawing the color palette in the top of screen, from
             left to right
@@ -41,28 +53,19 @@ class UserInterface(GUIEventHandler):
         colors = palette_colors()
 
         for idx, available_color in enumerate(colors):
-            self.options_context.element_in_position = {
-                'is_color': True,
-                'value': available_color,
-                'position': (20 * idx, 0)
-            }
-            self.options_context.elements = \
-                pygame.draw.rect(self.gui_context.screen,
-                                 available_color,
-                                 [20 * idx, 0, 20, 20])
+            color_surface = pygame.Surface((20, 20))
+            color_surface.fill(available_color)
+            position = (20 * idx, 0)
+            self.gui_context.draw_surfaces = DrawContext(color_surface, position, is_color=True)
 
-    def handle_pressed_element(self, elements: List[pygame.Rect]):
+    def handle_pressed_element(self, elements: List[DrawContext]):
         """
             Will handle the pressed color or option. If color, change the
             color in use, if one of the tools is selected, the user will have
             the option to draw.
         :param elements: List of pressed element
         """
-        for information in self.options_context.element_in_position:
-            [self.on_rect_click(element, information)
-             if element.collidepoint(*information['position'])
-             else ''
-             for element in elements]
+        [self.on_rect_click(element) for element in elements]
 
     def run(self):
         """
@@ -71,9 +74,12 @@ class UserInterface(GUIEventHandler):
             looking for pressed elements in the screen.
         :return:
         """
+
+        self.create_color_palette()
+        self.create_options()
+
         while self.options_context.keep_running:
-            self.draw_options()
-            self.draw_color_palette()
+            UserInterface.draw_to_surface(self.gui_context.screen, self.gui_context.draw_surfaces)
 
             events = pygame.event.get()
 
@@ -84,13 +90,12 @@ class UserInterface(GUIEventHandler):
                 mouse_position = pygame.mouse.get_pos()
                 is_pressed, _, __ = pygame.mouse.get_pressed()
 
-                self.handle_pressed_element([element for element in
-                                             self.options_context.elements if
-                                             element.collidepoint(
-                                                 mouse_position
-                                             ) and
-                                             is_pressed])
+                if is_pressed:
+                    self.handle_pressed_element([draw for draw in
+                                                 self.gui_context.draw_surfaces if
+                                                 UserInterface.surface_was_pressed(
+                                                     draw,
+                                                     mouse_position
+                                                 )])
 
-            del self.options_context.elements
-            del self.options_context.element_in_position
             pygame.display.flip()

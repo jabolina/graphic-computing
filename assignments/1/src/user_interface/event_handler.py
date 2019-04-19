@@ -8,7 +8,7 @@ from illustrator.polyline import PolylineIllustrator
 from illustrator.rectangle import RectangleIllustrator
 from illustrator.square import SquareIllustrator
 from user_interface.constants import WHITE
-from user_interface.context import GUIContext, OptionsContext
+from user_interface.context import GUIContext, OptionsContext, DrawContext
 from user_interface.utils import available_options
 
 
@@ -51,35 +51,24 @@ class GUIEventHandler:
     def _option_to_illustrator(self, option: str) -> BaseIllustrator:
         return self.illustrator.illustrators[available_options().index(option)]
 
-    def on_rect_click(self, element: pygame.Rect, element_info: dict) -> bool:
+    def on_rect_click(self, draw: DrawContext) -> bool:
         """
             Verify if the pressed item is a color element or an
             option element and handle it accordingly
-        :param element: The pressed rect element
-        :param element_info: Information about the pressed element
+        :param draw: The pressed element in context, with element surface and position
         :return success or fail
         """
-        print('The pressed element: ', element)
-        print('Information about: ', element_info)
-        if element_info['is_color']:
-            self._color_change(element_info['value'])
+        print('The pressed element: ', draw.element)
+
+        if draw.kwargs.get("is_color"):
+            self._color_change(draw.element.get_at((0, 0)))
             return True
 
-        illustrator = self._option_to_illustrator(element_info['value'])
+        illustrator = self._option_to_illustrator(draw.kwargs.get("value"))
 
         if isinstance(illustrator, CircleIllustrator):
-            # complete_in_future = CoroutineThreader(
-            #    illustrator.draw_circle,
-            #    option_position=element_info['position']
-            # )
-            illustrator.draw_circle(option_position=element_info['position'])
+            illustrator.draw_circle(option_position=draw.position)
         else:
-            # complete_in_future = CoroutineThreader(
-            #    illustrator.draw_line,
-            #    option_position=element_info['position']
-            # )
-            illustrator.draw_line(option_position=element_info['position'])
+            illustrator.draw_line(option_position=draw.position)
 
-        # If pygame had support for multi threading, this could be done :/
-        # complete_in_future.start()
         return True

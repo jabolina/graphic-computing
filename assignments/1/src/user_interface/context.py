@@ -1,13 +1,30 @@
+from typing import List, Tuple
+
 import pygame
+
 from user_interface.constants import BLACK, LINE_SIZE, DEFAULT_DIMENSION
+
+
+class DrawContext:
+    def __init__(self, element: pygame.Surface, position: Tuple[int, int], *args, **kwargs):
+        self._element = element
+        self._position = position
+        self.args = args
+        self.kwargs = kwargs
+
+    @property
+    def element(self) -> pygame.Surface:
+        return self._element
+
+    @property
+    def position(self) -> Tuple[int, int]:
+        return self._position
 
 
 class OptionsContext:
     def __init__(self):
         self._keep_running = True
         self._line_color = BLACK
-        self._elements = []
-        self._element_in_position = []
         self.line_size = LINE_SIZE
 
     @property
@@ -26,36 +43,13 @@ class OptionsContext:
     def keep_running(self, value):
         self._keep_running = value
 
-    @property
-    def elements(self):
-        return self._elements
-
-    @elements.setter
-    def elements(self, element):
-        self.elements.append(element)
-
-    @elements.deleter
-    def elements(self):
-        self.elements.clear()
-
-    @property
-    def element_in_position(self):
-        return self._element_in_position
-
-    @element_in_position.setter
-    def element_in_position(self, element):
-        self._element_in_position.append(element)
-
-    @element_in_position.deleter
-    def element_in_position(self):
-        self._element_in_position.clear()
-
 
 class GUIContext:
     def __init__(self):
         self._screen = pygame.display.set_mode(DEFAULT_DIMENSION)
         self._text_generator = pygame.font.SysFont('Arial', 18)
         self._background = pygame.Surface(DEFAULT_DIMENSION)
+        self._draw_surfaces: List[DrawContext] = []
 
     @property
     def screen(self):
@@ -68,3 +62,11 @@ class GUIContext:
     @property
     def background(self):
         return self._background
+
+    @property
+    def draw_surfaces(self):
+        return self._draw_surfaces
+
+    @draw_surfaces.setter
+    def draw_surfaces(self, draw: DrawContext):
+        self._draw_surfaces.append(draw)
