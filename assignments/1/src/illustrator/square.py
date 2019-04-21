@@ -1,7 +1,11 @@
 from typing import Tuple, List
 
 import pygame
+from pygame.constants import MOUSEBUTTONDOWN
 
+from user_interface.constants import DEFAULT_DIMENSION
+from user_interface.context import DrawContext
+from user_interface.utils import draw_to_surface
 from . import BaseIllustrator
 
 
@@ -37,23 +41,40 @@ class SquareIllustrator(BaseIllustrator):
         :param args: anything
         :param kwargs: anything
         """
-        positions: List[Tuple[int, int]] = []
-        original_position = kwargs.get('option_position')
+        control_point: Tuple[int, int] = None
+        clock = pygame.time.Clock()
+        is_running = True
 
-        while len(positions) < 2:
+        while is_running:
             event = pygame.event.wait()
-            if event.type == pygame.MOUSEBUTTONDOWN:
+
+            if control_point is None:
+                if event.type == MOUSEBUTTONDOWN:
+                    mouse_position = pygame.mouse.get_pos()
+                    is_pressed, _, __ = pygame.mouse.get_pressed()
+
+                    if is_pressed:
+                        control_point = mouse_position
+            else:
                 mouse_position = pygame.mouse.get_pos()
-                is_pressed, _, __ = pygame.mouse.get_pressed()
+                square_surface: pygame.Surface = pygame.Surface(DEFAULT_DIMENSION, pygame.SRCALPHA, 32)
+                square_surface.convert_alpha()
 
-                if is_pressed and mouse_position != original_position:
-                    positions.append(mouse_position)
+                [u_l, u_r, b_l, b_r] = SquareIllustrator.transform_coordinates(control_point, mouse_position)
+                self._bresenham(u_l, u_r, square_surface)
+                self._bresenham(u_l, b_l, square_surface)
+                self._bresenham(b_l, b_r, square_surface)
+                self._bresenham(u_r, b_r,square_surface)
 
-        [u_l, u_r, b_l, b_r] = SquareIllustrator.transform_coordinates(*positions)
-        self._bresenham(*u_l, *u_r)
-        self._bresenham(*u_l, *b_l)
-        self._bresenham(*b_l, *b_r)
-        self._bresenham(*u_r, *b_r)
+                square_context = DrawContext(square_surface, (0, 0))
+                square_context.is_valid = False
+                draw_to_surface(self.gui_context.screen, [square_context, *self.gui_context.draw_surfaces])
+
+                if event.type == MOUSEBUTTONDOWN:
+                    is_running = False
+                    self.gui_context.draw_surfaces = square_context
+
+            clock.tick(100)
 
     def draw_circle(self, *args, **kwargs):
         print("Draw circle")
