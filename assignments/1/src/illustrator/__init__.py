@@ -1,4 +1,5 @@
 import abc
+from math import sqrt
 from typing import Tuple
 
 import pygame
@@ -16,10 +17,33 @@ class BaseIllustrator:
         self.gui_context = gui_context
         self.options_context = options_context
 
-    def _set_pixel(self, x, y):
-        self.gui_context.screen.set_at((x, y), self.options_context.line_color)
+    @staticmethod
+    def get_surface_size(begin: Tuple[int, int], end: Tuple[int, int]) -> Tuple[float, float]:
+        x0, y0 = begin
+        x1, y1 = end
 
-    def _bresenham(self, x0, y0, x1, y1):
+        return abs(sqrt((x0 - x1) ** 2)), abs(sqrt((y0 - y1) ** 2))
+
+    @staticmethod
+    def get_surface_start(first: Tuple[int, int], now: Tuple[int, int]) -> Tuple[int, int]:
+        x0, y0 = first
+        x1, y1 = now
+        point = x0, y0
+
+        if x1 < x0:
+            point = x1, point[1]
+
+        if y1 < y0:
+            point = point[0], y1
+
+        return point
+
+    def _set_pixel(self, x, y, surface: pygame.Surface):
+        surface.set_at((x, y), self.options_context.line_color)
+
+    def _bresenham(self, start: Tuple[int, int], end: Tuple[int, int], surface: pygame.Surface):
+        x0, y0 = start
+        x1, y1 = end
         dx = x1 - x0
         dy = y1 - y0
 
@@ -38,7 +62,7 @@ class BaseIllustrator:
         dx <<= 2
         dy <<= 2
 
-        self._set_pixel(x0, y0)
+        self._set_pixel(x0, y0, surface)
 
         if dx > dy:
             fraction = dy - (dx >> 1)
@@ -48,7 +72,7 @@ class BaseIllustrator:
                     fraction -= dx
                 x0 += stepx
                 fraction += dy
-                self._set_pixel(x0, y0)
+                self._set_pixel(x0, y0, surface)
         else:
             fraction = dx - (dy >> 1)
             while y0 != y1:
@@ -57,7 +81,7 @@ class BaseIllustrator:
                     fraction -= dy
                 y0 += stepy
                 fraction += dx
-                self._set_pixel(x0, y0)
+                self._set_pixel(x0, y0, surface)
 
         pygame.display.flip()
 

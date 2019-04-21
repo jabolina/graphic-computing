@@ -9,6 +9,7 @@ class DrawContext:
     def __init__(self, element: pygame.Surface, position: Tuple[int, int], *args, **kwargs):
         self._element = element
         self._position = position
+        self._is_valid = True
         self.args = args
         self.kwargs = kwargs
 
@@ -19,6 +20,14 @@ class DrawContext:
     @property
     def position(self) -> Tuple[int, int]:
         return self._position
+
+    @property
+    def is_valid(self):
+        return self._is_valid
+
+    @is_valid.setter
+    def is_valid(self, value):
+        self._is_valid = value
 
 
 class OptionsContext:
@@ -69,4 +78,5 @@ class GUIContext:
 
     @draw_surfaces.setter
     def draw_surfaces(self, draw: DrawContext):
-        self._draw_surfaces.append(draw)
+        self._draw_surfaces.insert(0, draw)
+        # self._draw_surfaces.append(draw)

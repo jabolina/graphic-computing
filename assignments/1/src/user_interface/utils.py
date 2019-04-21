@@ -1,3 +1,11 @@
+from typing import List
+
+import pygame
+
+from user_interface import DrawContext
+from user_interface.constants import WHITE
+
+
 def palette_colors():
     red = (255, 0, 0)
     pink = (255, 0, 255)
@@ -52,3 +60,9 @@ def available_options():
         'Curva',
         'Circulo'
     ]
+
+
+def draw_to_surface(surface: pygame.Surface, elements: List[DrawContext]):
+    surface.fill(WHITE)
+    for element in elements:
+        surface.blit(element.element, element.position)

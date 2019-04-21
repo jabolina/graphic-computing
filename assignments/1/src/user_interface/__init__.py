@@ -5,7 +5,7 @@ import pygame
 from user_interface.constants import BLACK, DEFAULT_WIDTH, DEFAULT_HEIGHT
 from user_interface.context import DrawContext
 from user_interface.event_handler import GUIEventHandler
-from user_interface.utils import palette_colors, available_options
+from user_interface.utils import palette_colors, available_options, draw_to_surface
 
 
 class UserInterface(GUIEventHandler):
@@ -15,11 +15,6 @@ class UserInterface(GUIEventHandler):
         """
         super().__init__()
         pygame.display.set_caption("Paint")
-
-    @staticmethod
-    def draw_to_surface(surface: pygame.Surface, elements: List[DrawContext]):
-        for element in elements:
-            surface.blit(element.element, element.position)
 
     @staticmethod
     def surface_was_pressed(draw: DrawContext, mouse_position: Tuple[int, int]) -> bool:
@@ -79,7 +74,7 @@ class UserInterface(GUIEventHandler):
         self.create_options()
 
         while self.options_context.keep_running:
-            UserInterface.draw_to_surface(self.gui_context.screen, self.gui_context.draw_surfaces)
+            draw_to_surface(self.gui_context.screen, self.gui_context.draw_surfaces)
 
             events = pygame.event.get()
 
@@ -93,6 +88,7 @@ class UserInterface(GUIEventHandler):
                 if is_pressed:
                     self.handle_pressed_element([draw for draw in
                                                  self.gui_context.draw_surfaces if
+                                                 draw.is_valid and
                                                  UserInterface.surface_was_pressed(
                                                      draw,
                                                      mouse_position
