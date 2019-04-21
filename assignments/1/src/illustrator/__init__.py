@@ -85,7 +85,7 @@ class BaseIllustrator:
 
         pygame.display.flip()
 
-    def _middle_point(self, radius: int, center: Tuple[int, int]) -> None:
+    def _middle_point(self, radius: int, center: Tuple[int, int], surface: pygame.Surface) -> None:
         x0, y0 = center
         f = 1 - radius
         ddf_x = 1
@@ -94,10 +94,10 @@ class BaseIllustrator:
         x = 0
         y = radius
 
-        self._set_pixel(x0, y0 + radius)
-        self._set_pixel(x0, y0 - radius)
-        self._set_pixel(x0 + radius, y0)
-        self._set_pixel(x0 - radius, y0)
+        self._set_pixel(x0, y0 + radius, surface)
+        self._set_pixel(x0, y0 - radius, surface)
+        self._set_pixel(x0 + radius, y0, surface)
+        self._set_pixel(x0 - radius, y0, surface)
 
         while x < y:
             if f >= 0:
@@ -108,14 +108,14 @@ class BaseIllustrator:
             ddf_x += 2
             f += ddf_x
 
-            self._set_pixel(x0 + x, y0 + y)
-            self._set_pixel(x0 - x, y0 + y)
-            self._set_pixel(x0 + x, y0 - y)
-            self._set_pixel(x0 - x, y0 - y)
-            self._set_pixel(x0 + y, y0 + x)
-            self._set_pixel(x0 - y, y0 + x)
-            self._set_pixel(x0 + y, y0 - x)
-            self._set_pixel(x0 - y, y0 - x)
+            self._set_pixel(x0 + x, y0 + y, surface)
+            self._set_pixel(x0 - x, y0 + y, surface)
+            self._set_pixel(x0 + x, y0 - y, surface)
+            self._set_pixel(x0 - x, y0 - y, surface)
+            self._set_pixel(x0 + y, y0 + x, surface)
+            self._set_pixel(x0 - y, y0 + x, surface)
+            self._set_pixel(x0 + y, y0 - x, surface)
+            self._set_pixel(x0 - y, y0 - x, surface)
 
         pygame.display.flip()
 

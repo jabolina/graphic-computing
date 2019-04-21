@@ -3,10 +3,10 @@ from typing import List, Tuple
 import pygame
 from pygame.constants import MOUSEBUTTONDOWN
 
-from user_interface.constants import WHITE, DEFAULT_DIMENSION
-from . import BaseIllustrator
-from user_interface.utils import draw_to_surface
+from user_interface.constants import DEFAULT_DIMENSION
 from user_interface.context import DrawContext
+from user_interface.utils import draw_to_surface
+from . import BaseIllustrator
 
 
 class LineIllustrator(BaseIllustrator):
