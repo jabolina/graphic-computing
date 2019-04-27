@@ -18,11 +18,11 @@ class BaseIllustrator:
         self.options_context = options_context
 
     @staticmethod
-    def get_surface_size(begin: Tuple[int, int], end: Tuple[int, int]) -> Tuple[float, float]:
+    def get_surface_size(begin: Tuple[int, int], end: Tuple[int, int]) -> Tuple[int, int]:
         x0, y0 = begin
         x1, y1 = end
 
-        return abs(sqrt((x0 - x1) ** 2)), abs(sqrt((y0 - y1) ** 2))
+        return int(abs(sqrt((x0 - x1) ** 2))) + 1, int(abs(sqrt((y0 - y1) ** 2))) + 1
 
     @staticmethod
     def get_surface_start(first: Tuple[int, int], now: Tuple[int, int]) -> Tuple[int, int]:
@@ -37,6 +37,13 @@ class BaseIllustrator:
             point = point[0], y1
 
         return point
+
+    @staticmethod
+    def translate_coordinates(point: Tuple[int, int], offset: Tuple[int, int]) -> Tuple[int, int]:
+        x, y = point
+        n, m = offset
+
+        return abs(x - n), abs(y - m)
 
     def _set_pixel(self, x, y, surface: pygame.Surface):
         surface.set_at((x, y), self.options_context.line_color)
