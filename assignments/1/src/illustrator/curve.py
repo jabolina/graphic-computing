@@ -71,7 +71,7 @@ class CurveIllustrator(BaseIllustrator):
 
     def _draw_bezier(self, control_points: List[Tuple], surface: pygame.Surface):
         b_points = CurveIllustrator.compute_bezier_points([x for x in control_points])
-        pygame.draw.lines(surface, self.options_context.line_color, False, b_points, 2)
+        pygame.draw.lines(surface, self.options_context.line_color, False, b_points)
 
         # Flip screen
         pygame.display.flip()
@@ -79,7 +79,10 @@ class CurveIllustrator(BaseIllustrator):
     def draw(self, control_points: List[Tuple]) -> DrawContext:
         bezier_surface = pygame.Surface(DEFAULT_DIMENSION, pygame.SRCALPHA, 32)
         bezier_surface.convert_alpha()
-        self._draw_bezier(control_points, bezier_surface)
+
+        if len(control_points) >= 4:
+            self._draw_bezier(control_points, bezier_surface)
+
         bezier_context = DrawContext(bezier_surface, (0, 0))
         bezier_context.is_valid = False
 
@@ -100,15 +103,6 @@ class CurveIllustrator(BaseIllustrator):
         selected: PointContext = None
         clock = pygame.time.Clock()
 
-        while len(control_points) < 4:
-            event = pygame.event.wait()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_position = pygame.mouse.get_pos()
-                is_pressed, _, __ = pygame.mouse.get_pressed()
-
-                if is_pressed and mouse_position != original_position:
-                    control_points.append(PointContext(mouse_position))
-
         while is_running:
             context = self.draw([(p.x, p.y) for p in control_points])
             bezier_surface = context.element
@@ -116,10 +110,16 @@ class CurveIllustrator(BaseIllustrator):
             for event in pygame.event.get():
                 if event.type in (QUIT, KEYDOWN):
                     is_running = False
-                elif event.type == MOUSEBUTTONDOWN and event.button == 1:
-                    for p in control_points:
-                        if abs(p.x - event.pos[0]) < 10 and abs(p.y - event.pos[1]) < 10:
-                            selected = p
+
+                elif event.type == MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        for p in control_points:
+                            if abs(p.x - event.pos[0]) < 10 and abs(p.y - event.pos[1]) < 10:
+                                selected = p
+
+                    elif event.button == 3 and event.pos != original_position and len(control_points) < 4:
+                        control_points.append(PointContext(event.pos))
+
                 elif event.type == MOUSEBUTTONUP and event.button == 1:
                     selected = None
 
@@ -130,7 +130,9 @@ class CurveIllustrator(BaseIllustrator):
             for p in control_points:
                 pygame.draw.circle(bezier_surface, blue, (p.x, p.y), 10)
 
-            pygame.draw.lines(bezier_surface, lightgray, False, [(p.x, p.y) for p in control_points])
+            if len(control_points) >= 2:
+                pygame.draw.lines(bezier_surface, lightgray, False, [(p.x, p.y) for p in control_points])
+
             draw_to_surface(self.gui_context.screen, [context, *self.gui_context.draw_surfaces])
 
             clock.tick(100)
