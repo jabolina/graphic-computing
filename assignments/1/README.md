@@ -12,9 +12,10 @@ The draw routine must implement Bresenham algorithm and middle point algorithm f
     - [X] Line
     - [X] Circle
     - [X] Square
-    - [ ] Polyline
+    - [X] Polyline
     - [X] Rectangle
     - [X] Curve(Bezier)
+    - [ ] Bucket Paint
 - [X] Bresenham algorithm
 - [X] Middle point algorithm
 
