@@ -4,6 +4,7 @@ from typing import Tuple
 
 import pygame
 
+from user_interface.constants import DEFAULT_DIMENSION
 from user_interface.context import GUIContext, OptionsContext
 
 PIXEL_SIZE = 1
@@ -118,6 +119,32 @@ class BaseIllustrator:
             self._set_pixel(x0 - y, y0 - x, surface)
 
         pygame.display.flip()
+
+    def _flood_fill(self, surface_array: pygame.PixelArray,
+                    position: Tuple[int, int],
+                    old_color: Tuple[int, int, int]) -> pygame.PixelArray:
+
+        max_x, max_y = DEFAULT_DIMENSION
+        x, y = position
+
+        if surface_array[x][y] == self.options_context.line_color:
+            return surface_array
+
+        surface_array[x][y] = self.options_context.line_color
+
+        if x > 0:
+            self._flood_fill(surface_array, (x-1, y), old_color)
+
+        if y > 0:
+            self._flood_fill(surface_array, (x, y-1), old_color)
+
+        if x < max_x - 1:
+            self._flood_fill(surface_array, (x + 1, y), old_color)
+
+        if y < max_y - 1:
+            self._flood_fill(surface_array, (x, y + 1), old_color)
+
+        return surface_array
 
     @abc.abstractmethod
     def draw_line(self, *args, **kwargs):

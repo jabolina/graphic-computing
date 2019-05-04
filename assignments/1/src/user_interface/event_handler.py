@@ -1,6 +1,7 @@
 import pygame
 
 from illustrator import BaseIllustrator
+from illustrator.bucket import Bucket
 from illustrator.circle import CircleIllustrator
 from illustrator.curve import CurveIllustrator
 from illustrator.line import LineIllustrator
@@ -30,7 +31,8 @@ class IllustratorContext:
             SquareIllustrator(gui_context, gui_options),
             PolylineIllustrator(gui_context, gui_options),
             CurveIllustrator(gui_context, gui_options),
-            CircleIllustrator(gui_context, gui_options)
+            CircleIllustrator(gui_context, gui_options),
+            Bucket(gui_context, gui_options),
         ]
 
 
@@ -68,6 +70,8 @@ class GUIEventHandler:
 
         if isinstance(illustrator, CircleIllustrator):
             illustrator.draw_circle(option_position=draw.position)
+        elif isinstance(illustrator, Bucket):
+            illustrator.bucket_paint()
         else:
             illustrator.draw_line(option_position=draw.position)
 

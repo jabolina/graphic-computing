@@ -97,4 +97,4 @@ class RectangleIllustrator(BaseIllustrator):
             clock.tick(100)
 
     def draw_circle(self, *args, **kwargs):
-        print("How the hell did you get here?????")
+        pass

@@ -12,7 +12,7 @@ from . import BaseIllustrator
 
 class CircleIllustrator(BaseIllustrator):
     def draw_line(self, *args, **kwargs):
-        print('How the hell did you get here???')
+        pass
 
     def draw_circle(self, *args, **kwargs):
         """

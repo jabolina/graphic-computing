@@ -3,7 +3,7 @@ from typing import List
 import pygame
 
 from user_interface import DrawContext
-from user_interface.constants import WHITE
+from user_interface.constants import WHITE, DEFAULT_DIMENSION
 
 
 def palette_colors():
@@ -58,7 +58,8 @@ def available_options():
         'Quadrado',
         'Polilinha',
         'Curva',
-        'Circulo'
+        'Circulo',
+        'Balde'
     ]
 
 
@@ -66,3 +67,16 @@ def draw_to_surface(surface: pygame.Surface, elements: List[DrawContext]):
     surface.fill(WHITE)
     for element in elements:
         surface.blit(element.element, element.position)
+
+
+def merge_surfaces(elements: List[DrawContext]) -> DrawContext:
+    merged = pygame.Surface(DEFAULT_DIMENSION)
+    merged.fill(WHITE)
+
+    [merged.blit(element.element, (0, 0)) for element in elements]
+
+    context = DrawContext(merged, (0, 0))
+    context.is_valid = False
+
+    return context
+

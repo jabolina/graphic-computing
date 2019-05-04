@@ -77,4 +77,4 @@ class SquareIllustrator(BaseIllustrator):
             clock.tick(100)
 
     def draw_circle(self, *args, **kwargs):
-        print("Draw circle")
+        pass

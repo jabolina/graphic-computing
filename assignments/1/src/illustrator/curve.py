@@ -146,4 +146,4 @@ class CurveIllustrator(BaseIllustrator):
         self.gui_context.draw_surfaces = self.draw([(p.x, p.y) for p in control_points])
 
     def draw_circle(self, *args, **kwargs):
-        print("Draw circle")
+        pass

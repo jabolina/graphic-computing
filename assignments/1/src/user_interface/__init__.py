@@ -73,6 +73,8 @@ class UserInterface(GUIEventHandler):
         self.create_color_palette()
         self.create_options()
 
+        self.options_context.options_size = len(self.gui_context.draw_surfaces)
+
         while self.options_context.keep_running:
             draw_to_surface(self.gui_context.screen, self.gui_context.draw_surfaces)
 
