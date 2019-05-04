@@ -3,16 +3,11 @@ from typing import List, Tuple
 import pygame
 from pygame.constants import MOUSEBUTTONDOWN, QUIT, KEYDOWN, MOUSEBUTTONUP
 
+from illustrator.point import PointContext
 from user_interface.constants import DEFAULT_DIMENSION, WHITE
 from user_interface.context import DrawContext
-from user_interface.utils import draw_to_surface
+from user_interface.utils import draw_to_surface, green, blue, lightgray
 from . import BaseIllustrator
-
-
-class PointContext:
-    def __init__(self, coordinates):
-        self.x = coordinates[0]
-        self.y = coordinates[1]
 
 
 class CurveIllustrator(BaseIllustrator):
@@ -114,9 +109,6 @@ class CurveIllustrator(BaseIllustrator):
                 if is_pressed and mouse_position != original_position:
                     control_points.append(PointContext(mouse_position))
 
-        lightgray = (200, 200, 200)
-        green = (0, 255, 0)
-        blue = (0, 0, 255)
         while is_running:
             context = self.draw([(p.x, p.y) for p in control_points])
             bezier_surface = context.element
