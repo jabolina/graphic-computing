@@ -31,7 +31,6 @@ def handle_key_press(key, _, __):
     elif ord(key) in position_translate.keys():
         glTranslatef(*position_translate[ord(key)])
         redisplay = True
-        print(position_translate[ord(key)])
 
     elif ord(key) in light_by_key.keys():
         glLightfv(*light_by_key[ord(key)])
@@ -41,42 +40,26 @@ def handle_key_press(key, _, __):
         glutPostRedisplay()
 
 
-def rotate_y(context: CameraHelper):
-    context.lx = sin(context.angle)
-    context.lz = -cos(context.angle)
-
-    glLoadIdentity()
-    gluLookAt(*context.get_look_at())
-    print(context.get_look_at())
-
-
-def rotate_x(context: CameraHelper):
-    context.ly = sin(context.angle)
-    context.lz = -cos(context.angle)
-
-    glLoadIdentity()
-    gluLookAt(*context.get_look_at())
-
-
-def mouse_movement(x, y):
+def handle_click(x, y):
     global holder
+
+    if holder.is_first:
+        holder.is_first = False
+        holder.x = x
+        holder.y = y
+
+    if holder.x - x > 0:
+        glRotatef(*position_rotate[51])
+    elif holder.x - x < 0:
+        glRotatef(*position_rotate['z'])
+
+    if holder.y - y > 0:
+        glRotatef(*position_rotate[52])
+    elif holder.y - y < 0:
+        glRotatef(*position_rotate['x'])
+
     holder.x = x
     holder.y = y
-
-    if x >= (GLUT_WINDOW_WIDTH // 2):
-        holder.angle = x / 10 * 0.5
-
-    else:
-        holder.angle = x / 10 * -0.5
-
-    rotate_y(holder)
-
-    if y >= (GLUT_WINDOW_HEIGHT // 2):
-        holder.angle = y / 10 * 0.1
-    else:
-        holder.angle = y / 10 * -0.1
-
-    rotate_x(holder)
     glutPostRedisplay()
 
 
@@ -121,6 +104,7 @@ def main():
     glutDisplayFunc(display)
     glutKeyboardFunc(handle_key_press)
     glutMouseFunc(handle_scroll)
+    glutMotionFunc(handle_click)
     glutPassiveMotionFunc(slide_on_mouse)
     glClearColor(0.3, 0.3, 0.3, 0)
 
