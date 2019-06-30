@@ -80,6 +80,14 @@ def mouse_movement(x, y):
     glutPostRedisplay()
 
 
+def handle_scroll(button, _, __, ___):
+    if button == 3:
+        glTranslatef(*position_translate[113])
+
+    if button == 4:
+        glTranslatef(*position_translate[101])
+
+
 def slide_on_mouse(x, y):
     global holder
 
@@ -94,9 +102,9 @@ def slide_on_mouse(x, y):
         glTranslatef(*position_translate[97])
 
     if holder.y - y > 0:
-        glTranslatef(*position_translate[115])
-    elif holder.y - y < 0:
         glTranslatef(*position_translate[119])
+    elif holder.y - y < 0:
+        glTranslatef(*position_translate[115])
 
     holder.x = x
     holder.y = y
@@ -112,8 +120,8 @@ def main():
 
     glutDisplayFunc(display)
     glutKeyboardFunc(handle_key_press)
+    glutMouseFunc(handle_scroll)
     glutPassiveMotionFunc(slide_on_mouse)
-    glutMotionFunc(mouse_movement)
     glClearColor(0.3, 0.3, 0.3, 0)
 
     light = [0.2, 0.2, 0.2, 0.0]
