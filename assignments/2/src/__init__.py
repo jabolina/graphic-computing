@@ -1,3 +1,5 @@
+from math import sin, cos
+
 import pywavefront
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -5,11 +7,13 @@ from OpenGL.GLUT import *
 from pywavefront import visualization
 import sys
 
+from camera import CameraHelper
 from constants import position_look, position_rotate, position_translate, light_by_key
 
 OBJ_PATH = './resources/camera.obj'
 WINDOW_NAME = 'Very beautiful camera'
 obj = []
+holder = CameraHelper()
 
 
 def handle_key_press(key, _, __):
@@ -27,6 +31,7 @@ def handle_key_press(key, _, __):
     elif ord(key) in position_translate.keys():
         glTranslatef(*position_translate[ord(key)])
         redisplay = True
+        print(position_translate[ord(key)])
 
     elif ord(key) in light_by_key.keys():
         glLightfv(*light_by_key[ord(key)])
@@ -34,6 +39,68 @@ def handle_key_press(key, _, __):
 
     if redisplay:
         glutPostRedisplay()
+
+
+def rotate_y(context: CameraHelper):
+    context.lx = sin(context.angle)
+    context.lz = -cos(context.angle)
+
+    glLoadIdentity()
+    gluLookAt(*context.get_look_at())
+    print(context.get_look_at())
+
+
+def rotate_x(context: CameraHelper):
+    context.ly = sin(context.angle)
+    context.lz = -cos(context.angle)
+
+    glLoadIdentity()
+    gluLookAt(*context.get_look_at())
+
+
+def mouse_movement(x, y):
+    global holder
+    holder.x = x
+    holder.y = y
+
+    if x >= (GLUT_WINDOW_WIDTH // 2):
+        holder.angle = x / 10 * 0.5
+
+    else:
+        holder.angle = x / 10 * -0.5
+
+    rotate_y(holder)
+
+    if y >= (GLUT_WINDOW_HEIGHT // 2):
+        holder.angle = y / 10 * 0.1
+    else:
+        holder.angle = y / 10 * -0.1
+
+    rotate_x(holder)
+    glutPostRedisplay()
+
+
+def slide_on_mouse(x, y):
+    global holder
+
+    if holder.is_first:
+        holder.is_first = False
+        holder.x = x
+        holder.y = y
+
+    if holder.x - x > 0:
+        glTranslatef(*position_translate[100])
+    elif holder.x - x < 0:
+        glTranslatef(*position_translate[97])
+
+    if holder.y - y > 0:
+        glTranslatef(*position_translate[115])
+    elif holder.y - y < 0:
+        glTranslatef(*position_translate[119])
+
+    holder.x = x
+    holder.y = y
+    glutPostRedisplay()
 
 
 def main():
@@ -45,13 +112,13 @@ def main():
 
     glutDisplayFunc(display)
     glutKeyboardFunc(handle_key_press)
+    glutPassiveMotionFunc(slide_on_mouse)
+    glutMotionFunc(mouse_movement)
     glClearColor(0.3, 0.3, 0.3, 0)
 
     light = [0.2, 0.2, 0.2, 0.0]
 
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, light)
-
-    glutDisplayFunc(display)
     glMatrixMode(GL_PROJECTION)
     gluPerspective(30., 1., 0.1, 80.)
     glMatrixMode(GL_MODELVIEW)
@@ -64,7 +131,7 @@ def main():
 
 
 def display():
-    global obj
+    global obj, holder
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
